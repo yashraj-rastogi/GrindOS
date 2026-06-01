@@ -1,0 +1,95 @@
+/* ============================================================
+   QuickAdd Styles (Bottom sheet on Mobile, Dialog on Desktop)
+   ============================================================ */
+
+.quick-add-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(26, 50, 99, 0.4);
+  z-index: 100;
+  backdrop-filter: blur(2px);
+  animation: fadeIn var(--transition-fast) ease;
+}
+
+.quick-add-modal {
+  position: fixed;
+  z-index: 101;
+  background-color: var(--color-bg-surface);
+  border: var(--border-thick);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  transition: all var(--transition-bounce);
+}
+
+/* Mobile-first bottom sheet */
+@media (max-width: 767px) {
+  .quick-add-modal {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-bottom: none;
+    max-height: 90dvh;
+    overflow-y: auto;
+    animation: slideInUp var(--transition-bounce);
+  }
+}
+
+/* Desktop center panel */
+@media (min-width: 768px) {
+  .quick-add-modal {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 480px;
+    border-radius: var(--radius-lg);
+    animation: scaleIn var(--transition-bounce);
+  }
+}
+
+.picker-label {
+  font-family: var(--font-heading);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-1);
+}
+
+.chips-scroll {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-1);
+  margin-bottom: var(--space-2);
+  scrollbar-width: none; /* Hide scrollbar Firefox */
+}
+
+.chips-scroll::-webkit-scrollbar {
+  display: none; /* Hide scrollbar Chrome/Safari */
+}
+
+.picker-chip {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  background-color: var(--color-bg-surface);
+  transition: all var(--transition-fast);
+  border-width: 2px;
+}
+
+.picker-chip.selected {
+  background-color: var(--color-accent);
+  color: var(--color-text-on-accent);
+  border-color: var(--color-dark);
+  box-shadow: var(--shadow-sm);
+  transform: translate(-1px, -1px);
+}
+
+[data-theme="dark"] .picker-chip.selected {
+  box-shadow: 2px 2px 0px rgba(232, 226, 219, 0.4);
+}
