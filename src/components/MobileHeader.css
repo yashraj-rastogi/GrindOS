@@ -1,0 +1,48 @@
+.mobile-header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-height);
+  padding: 0 var(--space-4);
+  background-color: var(--color-bg-surface);
+  border-bottom: var(--border-thick);
+  z-index: 20;
+}
+
+.mobile-header-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mobile-logo {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-accent);
+  color: var(--color-text-on-accent);
+  border: 2px solid var(--color-dark);
+  border-radius: var(--radius-sm);
+  box-shadow: 2px 2px 0px var(--color-dark);
+  font-family: var(--font-heading);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-base);
+}
+
+.mobile-title {
+  font-family: var(--font-heading);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-xl);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-primary);
+}
+
+.mobile-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}

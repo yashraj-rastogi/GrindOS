@@ -1,0 +1,121 @@
+.side-rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--rail-width-collapsed);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-surface);
+  border-right: var(--border-thick);
+  z-index: 30;
+  overflow: hidden;
+  transition: width var(--transition-normal);
+}
+
+.side-rail-expanded {
+  width: var(--rail-width-expanded);
+}
+
+/* --- Header / Logo --- */
+.rail-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  height: var(--header-height);
+  border-bottom: var(--border-thin);
+  flex-shrink: 0;
+}
+
+.rail-logo {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-accent);
+  color: var(--color-text-on-accent);
+  border: 2px solid var(--color-dark);
+  border-radius: var(--radius-sm);
+  box-shadow: 2px 2px 0px var(--color-dark);
+  font-family: var(--font-heading);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+}
+
+.rail-brand {
+  font-family: var(--font-heading);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  animation: fadeIn var(--transition-fast) ease;
+}
+
+/* --- Navigation --- */
+.rail-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  overflow-y: auto;
+}
+
+.rail-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast),
+    transform var(--transition-fast);
+  text-decoration: none;
+  border: 2px solid transparent;
+  white-space: nowrap;
+  min-height: 40px;
+}
+
+.rail-item:hover {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+}
+
+.rail-item:active {
+  transform: scale(0.96);
+}
+
+.rail-item-active {
+  background-color: var(--color-accent);
+  color: var(--color-text-on-accent);
+  border-color: var(--color-dark);
+  box-shadow: var(--shadow-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.rail-item-active:hover {
+  background-color: var(--color-accent-hover);
+  color: var(--color-text-on-accent);
+}
+
+.rail-item-label {
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  animation: fadeIn var(--transition-fast) ease;
+}
+
+/* --- Footer --- */
+.rail-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-top: var(--border-thin);
+  flex-shrink: 0;
+}
