@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { ShieldAlert, Zap, ArrowRight } from 'lucide-react';
+import { TaskStatus } from '../db/models';
 import type { Task } from '../db/models';
 import { rolloverTasks } from '../db/operations';
 import { toDateString } from '../utils/dates';
@@ -35,9 +36,16 @@ export default function StandupGate({
     
     try {
       if (yesterdayTasks.length > 0) {
-        const taskIds = yesterdayTasks.map((t) => t.id);
-        // Roll them forward to today
-        await rolloverTasks(taskIds, todayStr);
+        // Only roll over tasks that haven't already been processed by the 4AM
+        // rollover engine. Tasks already in ROLLED_OVER status with today's date
+        // were handled by rollover.ts and should NOT be re-rolled.
+        const needsRollover = yesterdayTasks.filter(
+          (t) => t.status !== TaskStatus.ROLLED_OVER || t.plannedFor !== todayStr
+        );
+        if (needsRollover.length > 0) {
+          const taskIds = needsRollover.map((t) => t.id);
+          await rolloverTasks(taskIds, todayStr);
+        }
       }
       
       // Save standup as completed for today

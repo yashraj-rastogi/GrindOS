@@ -37,7 +37,7 @@ export default function StandupSummary({
         <div className="flex items-center gap-2">
           <History size={16} strokeWidth={2.5} style={{ color: 'var(--color-accent)' }} />
           <span className="section-header" style={{ fontSize: 'var(--text-xs)', margin: 0, color: 'var(--color-text-primary)' }}>
-            Yesterday's Carryovers
+            Rollover Recap
           </span>
         </div>
         

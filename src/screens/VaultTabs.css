@@ -1,17 +1,21 @@
 /* ============================================================
-   Backlog Tab Switcher Styles
+   Vault Tab Switcher Styles
    ============================================================ */
 
-.backlog-tabs {
+.vault-tabs {
   display: flex;
   gap: 0;
   margin-bottom: var(--space-4);
   border: 2px solid var(--color-border);
-  box-shadow: 2px 2px 0px var(--color-shadow);
+  box-shadow: 2px 2px 0px var(--color-dark);
   overflow: hidden;
 }
 
-.backlog-tab {
+[data-theme="dark"] .vault-tabs {
+  box-shadow: 2px 2px 0px rgba(232, 226, 219, 0.3);
+}
+
+.vault-tab {
   flex: 1;
   display: flex;
   align-items: center;
@@ -26,23 +30,22 @@
   cursor: pointer;
   border: none;
   border-right: 2px solid var(--color-border);
-  background: var(--color-bg-card);
+  background: var(--color-bg-surface);
   color: var(--color-text-secondary);
   transition: all 0.15s ease;
 }
 
-.backlog-tab:last-child {
+.vault-tab:last-child {
   border-right: none;
 }
 
-.backlog-tab:hover {
-  background: var(--color-bg-hover);
+.vault-tab:hover {
+  background: var(--color-bg-elevated);
 }
 
-.backlog-tab.active {
+.vault-tab.active {
   background: var(--color-accent);
-  color: var(--color-dark);
-  box-shadow: inset 0 -3px 0 var(--color-border);
+  color: var(--color-text-on-accent);
 }
 
 .tab-count {

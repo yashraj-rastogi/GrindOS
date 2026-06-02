@@ -74,7 +74,7 @@ export default function ThisWeekScreen() {
   const totalCount = weekTasks.length;
 
   return (
-    <div className="screen-container animate-fade-in-up">
+    <div className="screen-container screen-container-wide animate-fade-in-up">
       {/* Date Header */}
       <div className="screen-date-header flex items-center justify-between mb-4">
         <div>

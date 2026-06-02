@@ -5,7 +5,7 @@
 
 import { db } from './database';
 import { TaskStatus, TaskSource, TaskPriority } from './models';
-import type { Task, Review, Workstream, TaskUpdate } from './models';
+import type { Task, Review, Workstream, TaskUpdate, WeeklyTemplate } from './models';
 import { canTransition, InvalidTransitionError, rolloverTask } from '../domain/taskStateMachine';
 
 
@@ -241,5 +241,63 @@ export async function rolloverTasks(
       }
     }
   });
+}
+
+// --- Weekly Template Operations ---
+
+/**
+ * Create a new weekly template. Returns the new ID.
+ */
+export async function addTemplate(data: {
+  title: string;
+  notes?: string;
+  workstreamId: string;
+  priority?: TaskPriority;
+  daysOfWeek?: number[];
+  daily?: boolean;
+  estimate?: number | null;
+  tags?: string[];
+  dsaAutoLink?: boolean;
+}): Promise<string> {
+  const maxSort = await db.weeklyTemplates
+    .orderBy('sortOrder')
+    .last()
+    .then((t) => t?.sortOrder ?? -1);
+
+  const template: WeeklyTemplate = {
+    id: crypto.randomUUID(),
+    title: data.title,
+    notes: data.notes ?? '',
+    workstreamId: data.workstreamId,
+    priority: data.priority ?? TaskPriority.NONE,
+    daysOfWeek: data.daysOfWeek ?? [],
+    daily: data.daily ?? false,
+    estimate: data.estimate ?? null,
+    tags: data.tags ?? [],
+    dsaAutoLink: data.dsaAutoLink ?? false,
+    active: true,
+    sortOrder: maxSort + 1,
+    createdAt: Date.now(),
+  };
+
+  await db.weeklyTemplates.add(template);
+  return template.id;
+}
+
+/**
+ * Update a weekly template.
+ */
+export async function updateTemplate(
+  id: string,
+  changes: Partial<Omit<WeeklyTemplate, 'id' | 'createdAt'>>
+): Promise<void> {
+  await db.weeklyTemplates.update(id, changes);
+}
+
+/**
+ * Delete a weekly template.
+ */
+export async function deleteTemplate(id: string): Promise<void> {
+  await db.weeklyTemplates.delete(id);
 }
 

@@ -91,6 +91,22 @@ export interface NotificationConfig {
   enabled: boolean;
 }
 
+export interface WeeklyTemplate {
+  id: string;
+  title: string;
+  notes: string;
+  workstreamId: string;
+  priority: TaskPriority;
+  daysOfWeek: number[];    // 1=Monday, 2=Tuesday, ..., 7=Sunday (ISO weekday)
+  daily: boolean;          // If true, generates for every day (overrides daysOfWeek)
+  estimate: number | null; // minutes
+  tags: string[];
+  dsaAutoLink: boolean;    // If true, auto-picks next uncompleted DSA lecture as title
+  active: boolean;         // toggle on/off without deleting
+  sortOrder: number;
+  createdAt: number;
+}
+
 // --- Helper Types ---
 
 /** Task creation input — id, createdAt, updatedAt are auto-generated */

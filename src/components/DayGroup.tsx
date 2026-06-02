@@ -46,63 +46,73 @@ export default function DayGroup({
         transition: 'all var(--transition-fast)',
       }}
     >
-      {/* Header */}
+      {/* Header (Two-row layout to prevent ugly vertical squishing in column view) */}
       <div
-        className="flex items-center justify-between cursor-pointer"
+        className="flex flex-col gap-1 cursor-pointer"
         onClick={() => setIsExpanded(!isExpanded)}
         style={{ userSelect: 'none' }}
       >
-        <div className="flex items-center gap-2">
-          {isToday && <Calendar size={16} strokeWidth={2.5} style={{ color: 'var(--color-accent)' }} />}
-          <h3
-            style={{
-              fontSize: 'var(--text-lg)',
-              textTransform: 'uppercase',
-              letterSpacing: 'var(--tracking-wide)',
-              color: isToday ? 'var(--color-text-primary)' : 'inherit',
-            }}
-          >
-            {dayName}
-          </h3>
-          <span className="section-header" style={{ fontSize: 'var(--text-xs)', margin: 0, opacity: 0.7 }}>
-            {dateStr}
-          </span>
-          {isToday && (
-            <span
-              className="chip mono"
+        {/* Row 1: Day Name & Expand/Collapse Chevron */}
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-1.5 min-w-0">
+            {isToday && <Calendar size={14} strokeWidth={2.5} style={{ color: 'var(--color-accent)', flexShrink: 0 }} />}
+            <h3
               style={{
-                fontSize: '9px',
-                padding: '1px 5px',
-                borderColor: 'var(--color-accent)',
-                backgroundColor: 'var(--color-accent)',
-                color: 'var(--color-text-on-accent)',
-                fontWeight: 'bold',
-                marginLeft: 'var(--space-2)',
+                fontSize: 'var(--text-sm)',
+                textTransform: 'uppercase',
+                letterSpacing: 'var(--tracking-wide)',
+                color: isToday ? 'var(--color-text-primary)' : 'inherit',
+                margin: 0,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
               }}
             >
-              TODAY
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2">
-          {hasTasks && (
-            <span className="fraction" style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)' }}>
-              [ {doneCount} / {totalCount} ]
-            </span>
-          )}
+              {dayName}
+            </h3>
+          </div>
           <button
             type="button"
-            className="btn-icon"
-            style={{ width: '28px', height: '28px' }}
+            className="btn-icon shrink-0"
+            style={{ width: '22px', height: '22px' }}
             aria-label={isExpanded ? 'Collapse' : 'Expand'}
           >
             {isExpanded ? (
-              <ChevronUp size={16} strokeWidth={2.5} />
+              <ChevronUp size={14} strokeWidth={2.5} />
             ) : (
-              <ChevronDown size={16} strokeWidth={2.5} />
+              <ChevronDown size={14} strokeWidth={2.5} />
             )}
           </button>
+        </div>
+
+        {/* Row 2: Date, Today Badge & Progress Fraction */}
+        <div className="flex items-center justify-between w-full mt-0.5" style={{ fontSize: 'var(--text-xs)' }}>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="section-header" style={{ fontSize: '11px', margin: 0, opacity: 0.8, textTransform: 'none' }}>
+              {dateStr}
+            </span>
+            {isToday && (
+              <span
+                className="chip mono shrink-0"
+                style={{
+                  fontSize: '8px',
+                  padding: '0px 4px',
+                  borderColor: 'var(--color-accent)',
+                  backgroundColor: 'var(--color-accent)',
+                  color: 'var(--color-text-on-accent)',
+                  fontWeight: 'bold',
+                  borderWidth: '1px',
+                }}
+              >
+                TODAY
+              </span>
+            )}
+          </div>
+          {hasTasks && (
+            <span className="fraction shrink-0" style={{ fontSize: '11px', color: 'var(--color-text-secondary)', opacity: 0.9 }}>
+              [ {doneCount} / {totalCount} ]
+            </span>
+          )}
         </div>
       </div>
 

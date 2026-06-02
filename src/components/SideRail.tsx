@@ -15,7 +15,7 @@ import './SideRail.css';
 const navItems = [
   { to: '/', icon: CalendarDays, label: 'Today' },
   { to: '/week', icon: CalendarRange, label: 'This Week' },
-  { to: '/backlog', icon: Archive, label: 'Backlog' },
+  { to: '/vault', icon: Archive, label: 'Vault' },
   { to: '/review', icon: RotateCcw, label: 'Review' },
 ];
 

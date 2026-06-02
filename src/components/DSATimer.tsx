@@ -25,10 +25,13 @@ export default function DSATimer() {
   }, [isActive, timeLeft]);
 
   const toggleTimer = () => {
-    setIsActive(!isActive);
     if (sessionCompleted) {
+      // Reset first, then start fresh
       setSessionCompleted(false);
       setTimeLeft(1500);
+      setIsActive(true);
+    } else {
+      setIsActive(!isActive);
     }
   };
 

@@ -3,7 +3,7 @@
 // ============================================================
 
 import Dexie, { type Table } from 'dexie';
-import type { Task, Review, Workstream, NotificationConfig } from './models';
+import type { Task, Review, Workstream, NotificationConfig, WeeklyTemplate } from './models';
 
 export interface DSAProgress {
   lectureId: number;
@@ -16,6 +16,7 @@ export class TrackerDB extends Dexie {
   workstreams!: Table<Workstream, string>;
   notifications!: Table<NotificationConfig, string>;
   dsaProgress!: Table<DSAProgress, number>;
+  weeklyTemplates!: Table<WeeklyTemplate, string>;
 
   constructor() {
     super('TrackerDB');
@@ -55,6 +56,11 @@ export class TrackerDB extends Dexie {
       ].join(', '),
 
       dsaProgress: 'lectureId, completedAt',
+    });
+
+    // v2: Add weekly templates table for auto-schedule system
+    this.version(2).stores({
+      weeklyTemplates: 'id, workstreamId, active, sortOrder',
     });
   }
 }

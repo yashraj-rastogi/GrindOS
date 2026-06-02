@@ -13,12 +13,12 @@ import EmptyState from '../components/EmptyState';
 import QuickAdd from '../components/QuickAdd';
 import TaskDetail from '../components/TaskDetail';
 import './PlaceholderScreen.css';
-import './BacklogTabs.css';
+import './VaultTabs.css';
 
-type BacklogTab = 'vault' | 'dsa';
+type VaultTab = 'vault' | 'dsa';
 
-export default function BacklogScreen() {
-  const [activeTab, setActiveTab] = useState<BacklogTab>('vault');
+export default function VaultScreen() {
+  const [activeTab, setActiveTab] = useState<VaultTab>('vault');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedWorkstreamId, setSelectedWorkstreamId] = useState<string | null>(null);
 
@@ -95,9 +95,9 @@ export default function BacklogScreen() {
       </div>
 
       {/* Tab switcher */}
-      <div className="backlog-tabs mb-4">
+      <div className="vault-tabs mb-4">
         <button
-          className={`backlog-tab ${activeTab === 'vault' ? 'active' : ''}`}
+          className={`vault-tab ${activeTab === 'vault' ? 'active' : ''}`}
           onClick={() => setActiveTab('vault')}
         >
           <Archive size={16} strokeWidth={2.5} />
@@ -105,7 +105,7 @@ export default function BacklogScreen() {
           {count > 0 && activeTab === 'vault' && <span className="tab-count">{count}</span>}
         </button>
         <button
-          className={`backlog-tab ${activeTab === 'dsa' ? 'active' : ''}`}
+          className={`vault-tab ${activeTab === 'dsa' ? 'active' : ''}`}
           onClick={() => setActiveTab('dsa')}
         >
           <Code size={16} strokeWidth={2.5} />

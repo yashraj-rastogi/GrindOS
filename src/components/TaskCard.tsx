@@ -99,74 +99,105 @@ export default function TaskCard({
       className={`card flex flex-col gap-3 animate-fade-in`}
       style={{
         borderWidth: '2px',
-        padding: 'var(--space-3) var(--space-4)',
+        padding: 'var(--space-3) var(--space-3)',
         opacity: isDone ? 0.75 : 1,
         transition: 'all var(--transition-fast)',
       }}
     >
-      <div className="flex items-start justify-between gap-4">
-        {/* Title and Checkbox */}
-        <div className="flex items-start gap-3 flex-1">
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleComplete();
+      <div className="flex items-start gap-3">
+        {/* Title and Checkbox in full-width row */}
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleComplete();
+          }}
+          className={`checkbox ${isDone ? 'checked' : ''}`}
+          style={{ marginTop: '2px' }}
+        >
+          {isDone && (
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          )}
+        </div>
+        
+        <div className="flex flex-col gap-1 flex-1 min-w-0">
+          <span
+            onClick={onEdit}
+            style={{
+              textDecoration: isDone ? 'line-through' : 'none',
+              color: isDone ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
+              fontWeight: 'var(--weight-semibold)',
+              cursor: 'pointer',
+              fontSize: 'var(--text-sm)',
+              wordBreak: 'break-word',
             }}
-            className={`checkbox ${isDone ? 'checked' : ''}`}
-            style={{ marginTop: '2px' }}
           >
-            {isDone && (
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            )}
-          </div>
-          
-          <div className="flex flex-col gap-1 flex-1">
-            <span
+            {task.title}
+          </span>
+          {task.notes && (
+            <p
               onClick={onEdit}
               style={{
-                textDecoration: isDone ? 'line-through' : 'none',
-                color: isDone ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
-                fontWeight: 'var(--weight-semibold)',
+                fontSize: '11px',
+                color: 'var(--color-text-secondary)',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
                 cursor: 'pointer',
-                fontSize: 'var(--text-base)',
                 wordBreak: 'break-word',
               }}
             >
-              {task.title}
+              {task.notes}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Footer tags, chips & action buttons on a separate row */}
+      <div className="flex items-center justify-between gap-2 mt-1 border-t pt-2" style={{ borderColor: 'rgba(26,50,99,0.06)' }}>
+        <div className="flex flex-wrap items-center gap-1.5 flex-1 min-w-0">
+          {/* Workstream tag */}
+          {workstream && <WorkstreamChip workstream={workstream} />}
+
+          {/* Priority tag */}
+          {getPriorityBadge(task.priority)}
+
+          {/* Rollover badge */}
+          {task.rolloverCount > 0 && (
+            <span
+              className="chip mono"
+              title={`${task.rolloverCount} times rolled over`}
+              style={{
+                borderColor: 'var(--color-danger)',
+                backgroundColor: 'var(--color-danger)',
+                color: '#FFFFFF',
+                fontSize: '9px',
+                padding: '1px 4px',
+                fontWeight: 'var(--weight-bold)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '2px',
+              }}
+            >
+              <RefreshCw size={8} strokeWidth={3} className="animate-spin" style={{ animationDuration: '6s' }} />
+              ×{task.rolloverCount}
             </span>
-            {task.notes && (
-              <p
-                onClick={onEdit}
-                style={{
-                  fontSize: 'var(--text-xs)',
-                  color: 'var(--color-text-secondary)',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  cursor: 'pointer',
-                  wordBreak: 'break-word',
-                }}
-              >
-                {task.notes}
-              </p>
-            )}
-          </div>
+          )}
         </div>
 
-        {/* Quick actions */}
-        <div className="flex items-center gap-1 shrink-0">
+        {/* Sleek, compact footer quick actions */}
+        <div className="flex items-center gap-0.5 shrink-0 ml-auto">
           {onDefer && task.status !== TaskStatus.DONE && (
             <button
               className="btn-icon"
@@ -175,9 +206,9 @@ export default function TaskCard({
                 onDefer();
               }}
               title="Defer Task (to backlog)"
-              style={{ color: 'var(--color-muted)' }}
+              style={{ color: 'var(--color-muted)', width: '26px', height: '26px' }}
             >
-              <Clock size={16} strokeWidth={2.5} />
+              <Clock size={13} strokeWidth={2.5} />
             </button>
           )}
           <button
@@ -187,9 +218,9 @@ export default function TaskCard({
               onEdit();
             }}
             title="Edit Task"
-            style={{ color: 'var(--color-muted)' }}
+            style={{ color: 'var(--color-muted)', width: '26px', height: '26px' }}
           >
-            <Edit2 size={16} strokeWidth={2.5} />
+            <Edit2 size={13} strokeWidth={2.5} />
           </button>
           {onDelete && (
             <button
@@ -199,43 +230,12 @@ export default function TaskCard({
                 onDelete();
               }}
               title="Delete Task"
-              style={{ color: 'var(--color-danger)' }}
+              style={{ color: 'var(--color-danger)', width: '26px', height: '26px' }}
             >
-              <Trash2 size={16} strokeWidth={2.5} />
+              <Trash2 size={13} strokeWidth={2.5} />
             </button>
           )}
         </div>
-      </div>
-
-      {/* Footer tags & chips */}
-      <div className="flex flex-wrap items-center gap-2 mt-1">
-        {/* Workstream tag */}
-        {workstream && <WorkstreamChip workstream={workstream} />}
-
-        {/* Priority tag */}
-        {getPriorityBadge(task.priority)}
-
-        {/* Rollover badge */}
-        {task.rolloverCount > 0 && (
-          <span
-            className="chip mono"
-            title={`${task.rolloverCount} times rolled over`}
-            style={{
-              borderColor: 'var(--color-danger)',
-              backgroundColor: 'var(--color-danger)',
-              color: '#FFFFFF',
-              fontSize: 'var(--text-xs)',
-              padding: 'var(--space-1) var(--space-2)',
-              fontWeight: 'var(--weight-bold)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 'var(--space-1)',
-            }}
-          >
-            <RefreshCw size={10} strokeWidth={3} className="animate-spin" style={{ animationDuration: '6s' }} />
-            ×{task.rolloverCount}
-          </span>
-        )}
       </div>
     </div>
   );

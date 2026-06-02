@@ -7,7 +7,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from './database';
 import { TaskStatus } from './models';
-import type { Task, Workstream, Review } from './models';
+import type { Task, Workstream, Review, WeeklyTemplate } from './models';
 import { toDateString, getWeekBounds } from '../utils/dates';
 
 // --- Task Hooks ---
@@ -186,5 +186,16 @@ export function useWeekReview(weekStart: string): Review | undefined {
   return useLiveQuery(
     () => db.reviews.where('weekStart').equals(weekStart).first(),
     [weekStart]
+  );
+}
+
+// --- Template Hooks ---
+
+/**
+ * Returns all weekly templates ordered by sortOrder.
+ */
+export function useWeeklyTemplates(): WeeklyTemplate[] | undefined {
+  return useLiveQuery(() =>
+    db.weeklyTemplates.orderBy('sortOrder').toArray()
   );
 }
