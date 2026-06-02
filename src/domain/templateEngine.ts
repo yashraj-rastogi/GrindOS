@@ -5,8 +5,8 @@
 // (Mon–Sun) from active templates when a new week begins.
 
 import { db } from '../db/database';
-import { TaskStatus, TaskSource, TaskPriority } from '../db/models';
-import type { WeeklyTemplate, Task } from '../db/models';
+import { TaskStatus, TaskSource } from '../db/models';
+import type { Task } from '../db/models';
 import { getWeekBounds, toDateString } from '../utils/dates';
 import { DSA_PHASES } from '../data/dsaLectures';
 

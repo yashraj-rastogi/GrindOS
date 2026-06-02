@@ -27,7 +27,7 @@ export default function FilterChips({
             borderRadius: '50%',
             backgroundColor: 'var(--color-text-secondary)',
             display: 'inline-block',
-            marginRight: 'var(--space-1.5)',
+            marginRight: '6px',
             border: '1px solid var(--color-border)',
           }}
         />
@@ -49,7 +49,7 @@ export default function FilterChips({
               borderRadius: '50%',
               backgroundColor: ws.color,
               display: 'inline-block',
-              marginRight: 'var(--space-1.5)',
+              marginRight: '6px',
               border: '1px solid var(--color-border)',
             }}
           />
