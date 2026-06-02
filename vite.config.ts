@@ -19,20 +19,20 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/icons/icon-192.svg',
+            src: '/icons/icon.png',
+            sizes: '512x512',
+            type: 'image/png',
+          },
+          {
+            src: '/icons/icon.png',
             sizes: '192x192',
-            type: 'image/svg+xml',
+            type: 'image/png',
           },
           {
-            src: '/icons/icon-192.svg',
+            src: '/icons/icon.png',
             sizes: '512x512',
-            type: 'image/svg+xml',
-          },
-          {
-            src: '/icons/icon-192.svg',
-            sizes: '512x512',
-            type: 'image/svg+xml',
-            purpose: 'maskable',
+            type: 'image/png',
+            purpose: 'any maskable',
           },
         ],
       },
