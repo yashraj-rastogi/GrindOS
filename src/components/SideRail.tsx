@@ -31,8 +31,8 @@ export default function SideRail() {
     >
       {/* Logo / brand area */}
       <div className="rail-header">
-        <div className="rail-logo">T</div>
-        {expanded && <span className="rail-brand">Tracker</span>}
+        <div className="rail-logo">G</div>
+        {expanded && <span className="rail-brand">GrindOS</span>}
       </div>
 
       {/* Navigation items */}

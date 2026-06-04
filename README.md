@@ -1,12 +1,12 @@
 # 🗺️ Tracker — Personal Execution PWA
 
-> **Tracker** is a mobile-first, offline-first personal execution Progressive Web Application (PWA) designed with a striking **Neo-Brutalist "Blueprint"** aesthetic. It turns goal planning, weekly reviews, and daily habit execution into a high-contrast, structured workflow with zero external dependencies.
+> **GrindOS** is a mobile-first, offline-first personal execution Progressive Web Application (PWA) designed with a striking **Neo-Brutalist "Blueprint"** aesthetic. It turns goal planning, weekly reviews, and daily habit execution into a high-contrast, structured workflow with zero external dependencies.
 
 ---
 
 ## 🎨 Design Philosophy: Neo-Brutalist "Blueprint"
 
-Tracker is designed to look and feel like an interactive architectural sketch or engineer's blueprint:
+GrindOS is designed to look and feel like an interactive architectural sketch or engineer's blueprint:
 *   **Grid Paper Layouts:** Vibrant, structural backgrounds with clean graph-paper grids (light theme) and dark inverted graph containers (dark theme / Inverted Vault).
 *   **High Contrast:** Solid borders (`2px`/`3px` black borders), sharp box shadows (rigid offset `shadow-md` and pressed effects), and bold modern typography.
 *   **Curated Harmonious Color Palette:** Mustard `#FAB95B` (accent), Navy `#1A3263` (base text / dark theme), Muted Teal `#547792`, and crisp signal colors (Red `#E53935` for danger, Green `#4CAF50` for success).
@@ -80,7 +80,7 @@ graph TD
 
 ## 💾 IndexedDB Schema (Dexie.js v2)
 
-Tracker stores its data across 6 transactional database tables:
+GrindOS stores its data across 6 transactional database tables:
 
 | Table | Index Fields | Description |
 |---|---|---|

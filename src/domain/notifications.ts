@@ -96,7 +96,7 @@ async function checkScheduledNotifications(): Promise<void> {
 
         if (!alreadyNotified) {
           const title = config.kind === 'standup' 
-            ? '⚡ Tracker Morning Standup' 
+            ? '⚡ GrindOS Morning Standup' 
             : config.kind === 'end_of_day' 
             ? 'Reflection Time 📊' 
             : 'Reflection Loop 🔄';

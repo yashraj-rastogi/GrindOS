@@ -10,8 +10,8 @@ export default function MobileHeader() {
   return (
     <header className="mobile-header hide-desktop">
       <div className="mobile-header-brand">
-        <div className="mobile-logo">T</div>
-        <h1 className="mobile-title">Tracker</h1>
+        <div className="mobile-logo">G</div>
+        <h1 className="mobile-title">GrindOS</h1>
       </div>
       <div className="mobile-header-actions">
         <button

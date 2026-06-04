@@ -2,7 +2,7 @@
 
 ## Working Title
 
-Execution Tracker PWA
+Grind OS - PWA
 
 ## One-Line Pitch
 

@@ -1,5 +1,5 @@
 // ============================================================
-// Tracker — Dexie Database Definition
+// GrindOS — Dexie Database Definition
 // ============================================================
 
 import Dexie, { type Table } from 'dexie';

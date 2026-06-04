@@ -22,9 +22,9 @@ async function initTracker() {
     // 4. Initialize weekly template auto-generation
     await initializeTemplateEngine();
 
-    console.log('[Tracker] Startup initialization completed successfully');
+    console.log('[Grind OS] Startup initialization completed successfully');
   } catch (err) {
-    console.error('[Tracker] Startup initialization failed:', err);
+    console.error('[Grind OS] Startup initialization failed:', err);
   }
 }
 
