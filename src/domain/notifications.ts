@@ -1,5 +1,6 @@
 import { db } from '../db/database';
 import { toDateString } from '../utils/dates';
+import type { NotificationLog } from '../db/models';
 
 /**
  * Prompt the user for permission to display desktop notifications.
@@ -21,8 +22,25 @@ export async function requestNotificationPermission(): Promise<boolean> {
 
 /**
  * Immediately dispatch a browser desktop notification if permitted.
+ * Also logs the notification to IndexedDB for the Notification Center.
  */
-export function sendNotification(title: string, body: string): void {
+export async function sendNotification(title: string, body: string, kind?: string): Promise<void> {
+  // Always log the notification regardless of permission
+  try {
+    const log: NotificationLog = {
+      id: crypto.randomUUID(),
+      kind: (kind as NotificationLog['kind']) || 'standup',
+      title,
+      message: body,
+      firedAt: Date.now(),
+      readAt: null,
+    };
+    await db.notificationLogs.add(log);
+  } catch (err) {
+    console.error('[Notifications] Failed to log notification:', err);
+  }
+
+  // Try to show desktop notification
   if (!('Notification' in window) || Notification.permission !== 'granted') {
     return;
   }
@@ -30,8 +48,8 @@ export function sendNotification(title: string, body: string): void {
   try {
     new Notification(title, {
       body,
-      icon: '/favicon.svg',
-      badge: '/favicon.svg',
+      icon: '/icons/icon.png',
+      badge: '/icons/icon.png',
     });
   } catch (err) {
     console.error('[Notifications] Failed to send notification:', err);
@@ -42,9 +60,8 @@ export function sendNotification(title: string, body: string): void {
  * Initializes a background timer checking every 45 seconds for scheduled local reminders.
  */
 export function initializeNotificationScheduler(): void {
-  // Check immediately, then check once every 45 seconds
   checkScheduledNotifications().catch(console.error);
-  
+
   setInterval(async () => {
     await checkScheduledNotifications();
   }, 45000);
@@ -54,10 +71,6 @@ export function initializeNotificationScheduler(): void {
  * Queries IndexedDB for active configurations and fires matching triggers.
  */
 async function checkScheduledNotifications(): Promise<void> {
-  if (!('Notification' in window) || Notification.permission !== 'granted') {
-    return;
-  }
-
   const now = new Date();
   const todayStr = toDateString();
   const currentHours = String(now.getHours()).padStart(2, '0');
@@ -95,13 +108,13 @@ async function checkScheduledNotifications(): Promise<void> {
         const alreadyNotified = localStorage.getItem(storageKey);
 
         if (!alreadyNotified) {
-          const title = config.kind === 'standup' 
-            ? '⚡ GrindOS Morning Standup' 
-            : config.kind === 'end_of_day' 
-            ? 'Reflection Time 📊' 
+          const title = config.kind === 'standup'
+            ? '⚡ GrindOS Morning Standup'
+            : config.kind === 'end_of_day'
+            ? 'Reflection Time 📊'
             : 'Reflection Loop 🔄';
-            
-          sendNotification(title, config.message);
+
+          await sendNotification(title, config.message, config.kind);
           localStorage.setItem(storageKey, 'true');
           console.log(`[Notifications] Fired scheduled notification: ${config.kind}`);
         }

@@ -3,7 +3,7 @@
 // ============================================================
 
 import Dexie, { type Table } from 'dexie';
-import type { Task, Review, Workstream, NotificationConfig, WeeklyTemplate } from './models';
+import type { Task, Review, Workstream, NotificationConfig, WeeklyTemplate, UserConfig, JournalEntry, NotificationLog } from './models';
 
 export interface DSAProgress {
   lectureId: number;
@@ -17,6 +17,9 @@ export class TrackerDB extends Dexie {
   notifications!: Table<NotificationConfig, string>;
   dsaProgress!: Table<DSAProgress, number>;
   weeklyTemplates!: Table<WeeklyTemplate, string>;
+  userConfig!: Table<UserConfig, string>;
+  journalEntries!: Table<JournalEntry, string>;
+  notificationLogs!: Table<NotificationLog, string>;
 
   constructor() {
     super('TrackerDB');
@@ -62,8 +65,16 @@ export class TrackerDB extends Dexie {
     this.version(2).stores({
       weeklyTemplates: 'id, workstreamId, active, sortOrder',
     });
+
+    // v3: Add user config, journal entries, and notification logs
+    this.version(3).stores({
+      userConfig: 'id',
+      journalEntries: 'id, date, mood, createdAt',
+      notificationLogs: 'id, kind, firedAt, readAt',
+    });
   }
 }
 
 // Singleton database instance
 export const db = new TrackerDB();
+

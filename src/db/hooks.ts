@@ -7,7 +7,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from './database';
 import { TaskStatus } from './models';
-import type { Task, Workstream, Review, WeeklyTemplate } from './models';
+import type { Task, Workstream, Review, WeeklyTemplate, UserConfig, JournalEntry, NotificationLog } from './models';
 import { toDateString, getWeekBounds } from '../utils/dates';
 
 // --- Task Hooks ---
@@ -199,3 +199,240 @@ export function useWeeklyTemplates(): WeeklyTemplate[] | undefined {
     db.weeklyTemplates.orderBy('sortOrder').toArray()
   );
 }
+
+// --- User Config Hooks ---
+
+/**
+ * Returns the user's challenge configuration.
+ */
+export function useUserConfig(): UserConfig | undefined {
+  return useLiveQuery(() => db.userConfig.get('default'));
+}
+
+// --- Progress / Vault Hooks ---
+
+/**
+ * Aggregate completion stats across the entire challenge period.
+ */
+export function useProgressStats(startDate?: string, weeks?: number) {
+  return useLiveQuery(async () => {
+    const config = await db.userConfig.get('default');
+    const challengeStart = startDate || config?.challengeStartDate || toDateString();
+    const challengeWeeks = weeks || config?.challengeWeeks || 7;
+
+    const startD = new Date(challengeStart + 'T00:00:00');
+    const endD = new Date(startD);
+    endD.setDate(endD.getDate() + challengeWeeks * 7 - 1);
+    const endStr = toDateString(endD);
+
+    const allTasks = await db.tasks.toArray();
+    const challengeTasks = allTasks.filter(
+      (t) => t.plannedFor !== null && t.plannedFor >= challengeStart && t.plannedFor <= endStr
+    );
+
+    const total = challengeTasks.length;
+    const done = challengeTasks.filter((t) => t.status === TaskStatus.DONE).length;
+    const completionRate = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    // Current week number (1-indexed)
+    const now = new Date();
+    const diffMs = now.getTime() - startD.getTime();
+    const currentWeek = Math.min(
+      Math.max(Math.ceil(diffMs / (7 * 24 * 60 * 60 * 1000)), 1),
+      challengeWeeks
+    );
+
+    return {
+      total,
+      done,
+      completionRate,
+      challengeStart: challengeStart,
+      challengeWeeks,
+      currentWeek,
+    };
+  }, [startDate, weeks]);
+}
+
+/**
+ * Per-week completion percentages for the heatmap grid.
+ */
+export function useWeeklyHeatmap(startDate?: string, weeks?: number) {
+  return useLiveQuery(async () => {
+    const config = await db.userConfig.get('default');
+    const challengeStart = startDate || config?.challengeStartDate || toDateString();
+    const challengeWeeks = weeks || config?.challengeWeeks || 7;
+
+    const allTasks = await db.tasks.toArray();
+    const heatmap: { weekNum: number; start: string; end: string; total: number; done: number; percent: number }[] = [];
+
+    for (let w = 0; w < challengeWeeks; w++) {
+      const wStart = new Date(challengeStart + 'T00:00:00');
+      wStart.setDate(wStart.getDate() + w * 7);
+      const wEnd = new Date(wStart);
+      wEnd.setDate(wEnd.getDate() + 6);
+      const wStartStr = toDateString(wStart);
+      const wEndStr = toDateString(wEnd);
+
+      const weekTasks = allTasks.filter(
+        (t) => t.plannedFor !== null && t.plannedFor >= wStartStr && t.plannedFor <= wEndStr
+      );
+
+      const total = weekTasks.length;
+      const done = weekTasks.filter((t) => t.status === TaskStatus.DONE).length;
+
+      heatmap.push({
+        weekNum: w + 1,
+        start: wStartStr,
+        end: wEndStr,
+        total,
+        done,
+        percent: total > 0 ? Math.round((done / total) * 100) : 0,
+      });
+    }
+
+    return heatmap;
+  }, [startDate, weeks]);
+}
+
+/**
+ * Task counts grouped by workstream for the breakdown chart.
+ */
+export function useWorkstreamBreakdown(startDate?: string, weeks?: number) {
+  return useLiveQuery(async () => {
+    const config = await db.userConfig.get('default');
+    const challengeStart = startDate || config?.challengeStartDate || toDateString();
+    const challengeWeeks = weeks || config?.challengeWeeks || 7;
+
+    const startD = new Date(challengeStart + 'T00:00:00');
+    const endD = new Date(startD);
+    endD.setDate(endD.getDate() + challengeWeeks * 7 - 1);
+    const endStr = toDateString(endD);
+
+    const allTasks = await db.tasks.toArray();
+    const challengeTasks = allTasks.filter(
+      (t) => t.plannedFor !== null && t.plannedFor >= challengeStart && t.plannedFor <= endStr
+    );
+
+    const workstreams = await db.workstreams.toArray();
+    const breakdown = workstreams.map((ws) => {
+      const wsTasks = challengeTasks.filter((t) => t.workstreamId === ws.id);
+      const done = wsTasks.filter((t) => t.status === TaskStatus.DONE).length;
+      return {
+        id: ws.id,
+        name: ws.name,
+        color: ws.color,
+        total: wsTasks.length,
+        done,
+        percent: wsTasks.length > 0 ? Math.round((done / wsTasks.length) * 100) : 0,
+      };
+    }).filter((b) => b.total > 0);
+
+    return breakdown;
+  }, [startDate, weeks]);
+}
+
+/**
+ * Consecutive days with ≥1 completed task (looking back from today).
+ */
+export function useStreakCount() {
+  return useLiveQuery(async () => {
+    const allTasks = await db.tasks.toArray();
+    const doneTasks = allTasks.filter((t) => t.status === TaskStatus.DONE && t.plannedFor);
+
+    // Build a set of dates that have at least one completed task
+    const datesWithDone = new Set<string>();
+    for (const t of doneTasks) {
+      if (t.plannedFor) datesWithDone.add(t.plannedFor);
+    }
+
+    // Walk backwards from today
+    let streak = 0;
+    const d = new Date();
+    for (let i = 0; i < 365; i++) {
+      const dateStr = toDateString(d);
+      if (datesWithDone.has(dateStr)) {
+        streak++;
+        d.setDate(d.getDate() - 1);
+      } else {
+        // If it's today and no tasks done yet, skip today and check yesterday
+        if (i === 0) {
+          d.setDate(d.getDate() - 1);
+          continue;
+        }
+        break;
+      }
+    }
+
+    return streak;
+  });
+}
+
+/**
+ * Average number of completed tasks per day across the challenge.
+ */
+export function useAvgDailyTasks(startDate?: string) {
+  return useLiveQuery(async () => {
+    const config = await db.userConfig.get('default');
+    const challengeStart = startDate || config?.challengeStartDate || toDateString();
+
+    const startD = new Date(challengeStart + 'T00:00:00');
+    const now = new Date();
+    const daysPassed = Math.max(1, Math.ceil((now.getTime() - startD.getTime()) / (24 * 60 * 60 * 1000)));
+
+    const allTasks = await db.tasks.toArray();
+    const doneTasks = allTasks.filter(
+      (t) => t.status === TaskStatus.DONE && t.plannedFor && t.plannedFor >= challengeStart
+    );
+
+    return {
+      avgPerDay: Number((doneTasks.length / daysPassed).toFixed(1)),
+      totalCompleted: doneTasks.length,
+      daysPassed,
+    };
+  }, [startDate]);
+}
+
+// --- Journal Hooks ---
+
+/**
+ * Returns the journal entry for a specific date, if it exists.
+ */
+export function useJournalEntry(date: string): JournalEntry | undefined {
+  return useLiveQuery(
+    () => db.journalEntries.where('date').equals(date).first(),
+    [date]
+  );
+}
+
+/**
+ * Returns the N most recent journal entries.
+ */
+export function useRecentJournals(limit = 10): JournalEntry[] | undefined {
+  return useLiveQuery(
+    () => db.journalEntries.orderBy('createdAt').reverse().limit(limit).toArray(),
+    [limit]
+  );
+}
+
+// --- Notification Log Hooks ---
+
+/**
+ * Returns count of unread notification logs.
+ */
+export function useUnreadNotificationCount(): number | undefined {
+  return useLiveQuery(async () => {
+    const logs = await db.notificationLogs.toArray();
+    return logs.filter((l) => l.readAt === null).length;
+  });
+}
+
+/**
+ * Returns recent notification logs, newest first.
+ */
+export function useNotificationLogs(limit = 50): NotificationLog[] | undefined {
+  return useLiveQuery(
+    () => db.notificationLogs.orderBy('firedAt').reverse().limit(limit).toArray(),
+    [limit]
+  );
+}
+

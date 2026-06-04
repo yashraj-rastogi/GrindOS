@@ -4,8 +4,8 @@
 // Used in event handlers and callbacks. Not hooks.
 
 import { db } from './database';
-import { TaskStatus, TaskSource, TaskPriority } from './models';
-import type { Task, Review, Workstream, TaskUpdate, WeeklyTemplate } from './models';
+import { TaskStatus, TaskSource, TaskPriority, Mood } from './models';
+import type { Task, Review, Workstream, TaskUpdate, WeeklyTemplate, JournalEntry, UserConfig } from './models';
 import { canTransition, InvalidTransitionError, rolloverTask } from '../domain/taskStateMachine';
 
 
@@ -301,3 +301,82 @@ export async function deleteTemplate(id: string): Promise<void> {
   await db.weeklyTemplates.delete(id);
 }
 
+// --- Journal Entry Operations ---
+
+/**
+ * Create or update a journal entry for a given date.
+ * If an entry already exists for that date, update it; otherwise create.
+ */
+export async function upsertJournalEntry(data: {
+  date: string;
+  content: string;
+  mood: Mood;
+  tags?: string[];
+}): Promise<string> {
+  const now = Date.now();
+  const existing = await db.journalEntries.where('date').equals(data.date).first();
+
+  if (existing) {
+    await db.journalEntries.update(existing.id, {
+      content: data.content,
+      mood: data.mood,
+      tags: data.tags ?? existing.tags,
+      updatedAt: now,
+    });
+    return existing.id;
+  }
+
+  const entry: JournalEntry = {
+    id: crypto.randomUUID(),
+    date: data.date,
+    content: data.content,
+    mood: data.mood,
+    tags: data.tags ?? [],
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  await db.journalEntries.add(entry);
+  return entry.id;
+}
+
+/**
+ * Delete a journal entry by ID.
+ */
+export async function deleteJournalEntry(id: string): Promise<void> {
+  await db.journalEntries.delete(id);
+}
+
+// --- Notification Log Operations ---
+
+/**
+ * Mark a single notification log as read.
+ */
+export async function markNotificationRead(id: string): Promise<void> {
+  await db.notificationLogs.update(id, { readAt: Date.now() });
+}
+
+/**
+ * Mark ALL unread notification logs as read.
+ */
+export async function markAllNotificationsRead(): Promise<void> {
+  const unread = await db.notificationLogs.filter((l) => l.readAt === null).toArray();
+  await db.transaction('rw', db.notificationLogs, async () => {
+    const now = Date.now();
+    for (const log of unread) {
+      await db.notificationLogs.update(log.id, { readAt: now });
+    }
+  });
+}
+
+// --- User Config Operations ---
+
+/**
+ * Update the user's challenge configuration.
+ */
+export async function updateUserConfig(changes: Partial<Omit<UserConfig, 'id' | 'createdAt'>>): Promise<void> {
+  await db.userConfig.update('default', {
+    ...changes,
+    updatedAt: Date.now(),
+  });
+}
