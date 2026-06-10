@@ -10,7 +10,6 @@ import {
 } from '../db/hooks';
 import DSAChecklist from '../components/DSAChecklist';
 import './VaultScreen.css';
-import './PlaceholderScreen.css';
 
 type VaultTab = 'progress' | 'dsa';
 

@@ -768,3 +768,13 @@ h4 { font-size: var(--text-lg); }
     padding: var(--space-6) var(--space-8);
   }
 }
+
+/* Screen Header Utility */
+.screen-date-header {
+  margin-bottom: var(--space-6);
+}
+
+.screen-date-header h1 {
+  font-size: var(--text-3xl);
+  margin-bottom: var(--space-1);
+}
