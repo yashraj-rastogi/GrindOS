@@ -114,6 +114,11 @@ export interface UserConfig {
   challengeStartDate: string;  // YYYY-MM-DD
   challengeWeeks: number;      // user-chosen duration (e.g. 7)
   goalDescription: string;
+  goalCategory: string;        // e.g., 'Coding', 'Fitness', 'Learning', 'Career', 'Custom'
+  onboardingCompleted: boolean;
+  customChecklistJson?: string; // uploaded JSON curriculum string
+  avatarId?: string;
+  displayName?: string;
   createdAt: number;
   updatedAt: number;
 }

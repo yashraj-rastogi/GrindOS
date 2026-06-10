@@ -41,22 +41,24 @@ export default function VaultScreen() {
       </div>
 
       {/* Tab switcher */}
-      <div className="vault-tabs mb-4">
-        <button
-          className={`vault-tab ${activeTab === 'progress' ? 'active' : ''}`}
-          onClick={() => setActiveTab('progress')}
-        >
-          <BarChart3 size={16} strokeWidth={2.5} />
-          <span>Progress</span>
-        </button>
-        <button
-          className={`vault-tab ${activeTab === 'dsa' ? 'active' : ''}`}
-          onClick={() => setActiveTab('dsa')}
-        >
-          <Code size={16} strokeWidth={2.5} />
-          <span>DSA Checklist</span>
-        </button>
-      </div>
+      {config?.customChecklistJson !== 'skip' && (
+        <div className="vault-tabs mb-4">
+          <button
+            className={`vault-tab ${activeTab === 'progress' ? 'active' : ''}`}
+            onClick={() => setActiveTab('progress')}
+          >
+            <BarChart3 size={16} strokeWidth={2.5} />
+            <span>Progress</span>
+          </button>
+          <button
+            className={`vault-tab ${activeTab === 'dsa' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dsa')}
+          >
+            <Code size={16} strokeWidth={2.5} />
+            <span>{config?.goalCategory || 'DSA'} Checklist</span>
+          </button>
+        </div>
+      )}
 
       {/* Tab Content */}
       {activeTab === 'progress' && (
@@ -229,7 +231,7 @@ export default function VaultScreen() {
         </div>
       )}
 
-      {activeTab === 'dsa' && (
+      {activeTab === 'dsa' && config?.customChecklistJson !== 'skip' && (
         <div className="vault-dsa-wrapper">
           <DSAChecklist />
         </div>

@@ -124,7 +124,15 @@ async function syncTable(tableName: string, uid: string, lastSyncTime: number) {
           await setDoc(docRef, sanitizeForFirestore(localItem));
         } else if (remoteTime > localTime) {
           // Remote is newer, update local Dexie
-          await localTable.put(remoteItem);
+          const parsedKey = parseDocId(tableName, key);
+          const cleanItem: any = { ...remoteItem };
+          if (tableName === 'dsaProgress') {
+            cleanItem.lectureId = parsedKey;
+            delete cleanItem.id;
+          } else {
+            cleanItem.id = parsedKey;
+          }
+          await localTable.put(cleanItem);
         }
       } else if (localItem && !remoteItem) {
         // Local exists, remote doesn't. Was it created locally or deleted remotely?
@@ -142,7 +150,15 @@ async function syncTable(tableName: string, uid: string, lastSyncTime: number) {
         const remoteTime = getUpdatedAt(tableName, remoteItem);
         if (remoteTime > lastSyncTime) {
           // Created remotely after last sync -> download
-          await localTable.put(remoteItem);
+          const parsedKey = parseDocId(tableName, key);
+          const cleanItem: any = { ...remoteItem };
+          if (tableName === 'dsaProgress') {
+            cleanItem.lectureId = parsedKey;
+            delete cleanItem.id;
+          } else {
+            cleanItem.id = parsedKey;
+          }
+          await localTable.put(cleanItem);
         } else {
           // Deleted locally -> delete remote
           const docRef = doc(firestore!, 'users', uid, tableName, key);

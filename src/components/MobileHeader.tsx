@@ -5,11 +5,12 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useUnreadNotificationCount } from '../db/hooks';
 import SyncIndicator from './SyncIndicator';
+import UserAvatar from './UserAvatar';
 import './MobileHeader.css';
 
 export default function MobileHeader() {
   const { theme, toggleTheme } = useTheme();
-  const { user, signOut, isConfigured } = useAuth();
+  const { user, signOut, isConfigured, profileName, profileAvatar } = useAuth();
   const navigate = useNavigate();
   const unreadCount = useUnreadNotificationCount();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -31,7 +32,10 @@ export default function MobileHeader() {
     await signOut();
   };
 
-  const firstLetter = user?.displayName ? user.displayName.charAt(0).toUpperCase() : (user?.email ? user.email.charAt(0).toUpperCase() : 'U');
+  const handleProfileClick = () => {
+    setMenuOpen(false);
+    navigate('/profile');
+  };
 
   return (
     <header className="mobile-header hide-desktop">
@@ -73,38 +77,40 @@ export default function MobileHeader() {
           <Settings size={20} strokeWidth={2.5} />
         </button>
 
-        {isConfigured && user && (
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <button
-              className="user-avatar-btn"
-              onClick={() => setMenuOpen(!menuOpen)}
-              title="User profile"
-            >
-              {user.photoURL ? (
-                <img
-                  src={user.photoURL}
-                  alt={user.displayName || 'User profile'}
-                  className="user-avatar-img"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <span className="user-avatar-placeholder">{firstLetter}</span>
-              )}
-            </button>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+          <button
+            className="user-avatar-btn"
+            onClick={() => setMenuOpen(!menuOpen)}
+            title="User Profile"
+          >
+            <UserAvatar avatarUrlOrId={profileAvatar} displayName={profileName} size={32} />
+          </button>
 
-            {menuOpen && (
-              <div className="profile-dropdown animate-fade-in-up">
-                <div className="profile-dropdown-header">
-                  <span className="profile-name">{user.displayName || 'User'}</span>
-                  <span className="profile-email">{user.email}</span>
-                </div>
+          {menuOpen && (
+            <div className="profile-dropdown animate-fade-in-up">
+              <div className="profile-dropdown-header">
+                <span className="profile-name">{profileName}</span>
+                <span className="profile-email">{user?.email || 'Offline Local Account'}</span>
+              </div>
+              <button
+                className="profile-signout-btn"
+                style={{
+                  backgroundColor: 'var(--color-bg-elevated)',
+                  color: 'var(--color-text-primary)',
+                  marginBottom: user ? 'var(--space-2)' : '0',
+                }}
+                onClick={handleProfileClick}
+              >
+                Manage Profile
+              </button>
+              {user && (
                 <button className="profile-signout-btn" onClick={handleSignOut}>
                   Sign Out
                 </button>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

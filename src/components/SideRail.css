@@ -57,6 +57,16 @@
 }
 
 /* User Profile in rail */
+.rail-user-link {
+  text-decoration: none;
+  display: block;
+  outline: none;
+}
+
+.rail-user-link:hover .rail-user {
+  background-color: var(--color-bg-surface);
+}
+
 .rail-user {
   display: flex;
   align-items: center;

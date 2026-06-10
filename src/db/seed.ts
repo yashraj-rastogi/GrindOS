@@ -19,20 +19,12 @@ const DEFAULT_WORKSTREAMS: Omit<Workstream, 'id' | 'createdAt'>[] = [
     sortOrder: 0,
   },
   {
-    name: 'DSA',
-    color: '#10B981',
-    icon: 'code',
-    active: true,
-    isDefault: true,
-    sortOrder: 1,
-  },
-  {
     name: 'Study',
     color: '#8B5CF6',
     icon: 'book-open',
     active: true,
     isDefault: true,
-    sortOrder: 2,
+    sortOrder: 1,
   },
   {
     name: 'Personal',
@@ -40,7 +32,7 @@ const DEFAULT_WORKSTREAMS: Omit<Workstream, 'id' | 'createdAt'>[] = [
     icon: 'user',
     active: true,
     isDefault: true,
-    sortOrder: 3,
+    sortOrder: 2,
   },
 ];
 
@@ -100,7 +92,6 @@ export async function seedDefaults(): Promise<void> {
   const tplCount = await db.weeklyTemplates.count();
   if (tplCount === 0) {
     const workWs = workstreams.find((w) => w.name === 'Work')?.id || '';
-    const dsaWs = workstreams.find((w) => w.name === 'DSA')?.id || '';
     const studyWs = workstreams.find((w) => w.name === 'Study')?.id || '';
     const personalWs = workstreams.find((w) => w.name === 'Personal')?.id || '';
 
@@ -122,15 +113,15 @@ export async function seedDefaults(): Promise<void> {
       },
       {
         id: crypto.randomUUID(),
-        title: 'DSA Practice',
-        notes: 'Next uncompleted topic from DSA lecture schedule.',
-        workstreamId: dsaWs,
+        title: 'Skills Practice',
+        notes: 'Dedicated time to practice and refine key skills.',
+        workstreamId: studyWs,
         priority: TaskPriority.HIGH,
         daysOfWeek: [1, 3, 5],
         daily: false,
         estimate: 60,
-        tags: ['dsa', 'coding'],
-        dsaAutoLink: true,
+        tags: ['practice', 'skills'],
+        dsaAutoLink: false,
         active: true,
         sortOrder: 1,
         createdAt: now,
@@ -211,11 +202,23 @@ export async function seedDefaults(): Promise<void> {
       id: 'default',
       challengeStartDate: toDateString(), // Start from today
       challengeWeeks: 7,                  // Default 7-week challenge
-      goalDescription: 'DSA Mastery & Placement Prep',
+      goalDescription: 'My 7-Week Growth Challenge',
+      goalCategory: 'Custom',
+      onboardingCompleted: false, // Must go through onboarding
       createdAt: now,
       updatedAt: now,
     };
     await db.userConfig.add(config);
     console.log('[GrindOS] Seeded default user config (7-week challenge)');
+  } else {
+    // Migrate existing configs to set onboardingCompleted = true so existing users bypass wizard
+    const existingConfig = await db.userConfig.get('default');
+    if (existingConfig && existingConfig.onboardingCompleted === undefined) {
+      await db.userConfig.update('default', {
+        goalCategory: 'Custom',
+        onboardingCompleted: true,
+      });
+      console.log('[GrindOS] Migrated existing user config to bypass onboarding');
+    }
   }
 }

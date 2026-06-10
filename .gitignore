@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 # Added by code-review-graph
 .code-review-graph/
+
+# Local env files
+.env
+.env*.local

@@ -15,6 +15,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useUnreadNotificationCount } from '../db/hooks';
 import SyncIndicator from './SyncIndicator';
+import UserAvatar from './UserAvatar';
 import './SideRail.css';
 
 const navItems = [
@@ -27,10 +28,8 @@ const navItems = [
 export default function SideRail() {
   const [expanded, setExpanded] = useState(false);
   const { theme, toggleTheme } = useTheme();
-  const { user, signOut, isConfigured } = useAuth();
+  const { user, signOut, isConfigured, profileName, profileAvatar } = useAuth();
   const unreadCount = useUnreadNotificationCount();
-
-  const firstLetter = user?.displayName ? user.displayName.charAt(0).toUpperCase() : (user?.email ? user.email.charAt(0).toUpperCase() : 'U');
 
   return (
     <aside
@@ -48,32 +47,23 @@ export default function SideRail() {
       </div>
 
       {/* User profile area */}
-      {isConfigured && user && (
+      <NavLink to="/profile" className="rail-user-link" title="Profile Settings">
         <div className="rail-user">
           <div className="rail-avatar">
-            {user.photoURL ? (
-              <img
-                src={user.photoURL}
-                alt={user.displayName || 'User'}
-                className="rail-avatar-img"
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <span className="rail-avatar-placeholder">{firstLetter}</span>
-            )}
+            <UserAvatar avatarUrlOrId={profileAvatar} displayName={profileName} size={32} />
           </div>
           {expanded && (
             <div className="rail-user-info">
-              <span className="rail-user-name" title={user.displayName || 'User'}>
-                {user.displayName || 'User'}
+              <span className="rail-user-name" title={profileName}>
+                {profileName}
               </span>
-              <span className="rail-user-email" title={user.email || ''}>
-                {user.email}
+              <span className="rail-user-email" title={user?.email || 'Offline Local Account'}>
+                {user?.email || 'Offline Local Account'}
               </span>
             </div>
           )}
         </div>
-      )}
+      </NavLink>
 
       {/* Navigation items */}
       <nav className="rail-nav">

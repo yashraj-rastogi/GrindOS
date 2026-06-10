@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { CalendarDays, CalendarRange, Archive, RotateCcw, Settings } from 'lucide-react';
+import { CalendarDays, CalendarRange, Archive, RotateCcw } from 'lucide-react';
 import './BottomTabBar.css';
 
 const tabs = [
@@ -7,7 +7,6 @@ const tabs = [
   { to: '/week', icon: CalendarRange, label: 'Week' },
   { to: '/vault', icon: Archive, label: 'Vault' },
   { to: '/review', icon: RotateCcw, label: 'Review' },
-  { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 
 export default function BottomTabBar() {

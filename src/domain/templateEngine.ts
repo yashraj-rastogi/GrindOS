@@ -9,6 +9,7 @@ import { TaskStatus, TaskSource } from '../db/models';
 import type { Task } from '../db/models';
 import { getWeekBounds, toDateString } from '../utils/dates';
 import { DSA_PHASES } from '../data/dsaLectures';
+import type { LecturePhase } from '../data/dsaLectures';
 
 const TEMPLATE_WEEK_KEY = 'tracker_last_template_week';
 
@@ -67,6 +68,10 @@ export async function checkAndApplyTemplates(force = false): Promise<void> {
         .map((t) => `${t.title}::${t.plannedFor}`)
     );
 
+    // Load config to determine goal category prefix
+    const config = await db.userConfig.get('default');
+    const categoryPrefix = config?.goalCategory || 'DSA';
+
     // Resolve DSA next uncompleted lecture (shared across all DSA-linked templates)
     const nextDsaTitle = await resolveNextDsaLecture();
 
@@ -89,7 +94,7 @@ export async function checkAndApplyTemplates(force = false): Promise<void> {
 
         // Resolve title (DSA auto-link or static)
         const title = template.dsaAutoLink && nextDsaTitle
-          ? `DSA: ${nextDsaTitle}`
+          ? `${categoryPrefix}: ${nextDsaTitle}`
           : template.title;
 
         // Skip if this exact task already exists (idempotency)
@@ -146,11 +151,24 @@ export async function checkAndApplyTemplates(force = false): Promise<void> {
  */
 async function resolveNextDsaLecture(): Promise<string | null> {
   try {
+    // 1. Get user configuration
+    const config = await db.userConfig.get('default');
+
+    // 2. Select phases (custom uploaded or fallback to default DSA)
+    let phases: LecturePhase[] = DSA_PHASES;
+    if (config?.customChecklistJson && config.customChecklistJson !== 'skip') {
+      try {
+        phases = JSON.parse(config.customChecklistJson) as LecturePhase[];
+      } catch (e) {
+        console.error('[Templates] Failed to parse custom checklist JSON:', e);
+      }
+    }
+
+    // 3. Find the first uncompleted topic
     const completedRows = await db.dsaProgress.toArray();
     const completedIds = new Set(completedRows.map((r) => r.lectureId));
 
-    // Find the first uncompleted lecture across all phases
-    for (const phase of DSA_PHASES) {
+    for (const phase of phases) {
       for (const item of phase.items) {
         if (!completedIds.has(item.id)) {
           return item.title;
@@ -160,7 +178,7 @@ async function resolveNextDsaLecture(): Promise<string | null> {
 
     return null; // All completed
   } catch (err) {
-    console.error('[Templates] Failed to resolve DSA lecture:', err);
+    console.error('[Templates] Failed to resolve next checklist item:', err);
     return null;
   }
 }
